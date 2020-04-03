@@ -1,0 +1,5 @@
+---
+id: Test
+foo: bar
+---
+{#1} This is a paragraph.
