@@ -1,4 +1,8 @@
-import { existsSync, extname, readFileStrSync } from '../../deps.ts'
+import {
+  existsSync,
+  extname,
+  readFileStrSync
+} from '../../../deps.ts'
 
 export default function read (inputFilePath: string): string {
   if (!existsSync(inputFilePath) && extname(inputFilePath) !== '.mit') {

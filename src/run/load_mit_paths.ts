@@ -1,4 +1,6 @@
-import { extname } from '../deps.ts'
+import {
+  extname
+} from '../../deps.ts'
 
 export default function mits (directory: string): string[] {
   const allFiles = Deno.readdirSync(directory)

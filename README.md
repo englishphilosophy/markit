@@ -15,7 +15,19 @@ implemented or thoroughly tested.
 
 ## 1. Usage
 
-...
+1. Install [Deno]() (follow the instructions on their web site).
+2. Run `deno install --allow-read --allow-write markit
+   https://raw.githubusercontent.com/englishphilosophy/markit/master/bin/markit.ts`.
+3. Run `markit path [-o outputDirectory] [-c configFile]`.
+
+In 3 above, `path` is the path to a Markit file to be converted, or a directory
+of Markit files. If the latter, all Markit files in that directory (and its
+subdirectories) will be converted. By default, output files are placed in the
+same directory as their corresponding input file. Override this default with the
+optional `-o outputDirectory` directive. Additional options can be placed in a
+config file, and passed in using the optional `-c configFile` directive. For
+details of all additional options, their defaults, and how to change them, see
+section 4 below.
 
 ## 2. The structure of a Markit file
 
@@ -65,18 +77,26 @@ TEI-XML output:
 
 ## 3. Writing Markit files
 
-We recommend using the [Atom text editor](https://atom.io) to create and edit
-Markit files. In this editor, you can use `Cmd-Shift-q` or `Ctrl-Shift-q` to
-automatically break paragraphs into separate lines. (This is optional, but it
-makes Markit files much nicer to read.) More importantly, you can add our
-[language-markit](https://github.com/englishphilosophy/language-markit) package,
-which provides syntax highlighting for the language. To add this package, press
-`Cmd-,` or `Ctrl-,` to open up Atom's settings tab, click `+ Install`, search
-for `language-markit` in the search packages box, then click the `Install`
-button for this package when it shows up below.
+Markit files are just text files, and can be written and edited in any text
+editor. We recommend using either [Atom](https://atom.io) or [Visual Studio
+Code](https://code.visualstudio.com/), which are free and work on all platforms.
+A [language-markit](https://github.com/englishphilosophy/language-markit)
+extension is available that enables Markit language support in both of these
+editors.
 
-Language support for Visual Studio Code is also in development.
+To install this extension in Atom, press `Cmd+,` or `Ctrl+,` to open up the
+settings tab, click `+ Install`, search for `language-markit` in the search
+packages box, then click the `Install` button for this package when it shows up
+in the list below. In Visual Studio Code, press `Cmd+Shift+X` or `Ctrl+Shift+X`
+to open up the extensions pane, search for `language-markit`, then likewise
+click the `Install` button for this extension when it appears.
 
-## 4. Further help and documentation
+For readability, it is recommended to hard-wrap lines of text in Markit files to
+a maximum of 80 characters. In Atom, you can do this automatically by pressing
+`Cmd-Shift-q` or `Ctrl-Shift-q`. In Visual Studio Code, you first need to
+install the `rewrap` extension (search for it in the extensions pane just as you
+did for `language-markit`); then pressing `Alt+q` will have the same effect.
 
-... will be added soon.
+## 4. Options
+
+... details will be added soon.

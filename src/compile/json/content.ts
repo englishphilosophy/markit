@@ -1,5 +1,4 @@
-import Options from '../options.ts'
-import { Tag } from '../rules.ts'
+import { Options, Tag } from '../../types.ts'
 import greek from './greek.ts'
 import * as tag from './tag.ts'
 

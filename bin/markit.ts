@@ -1,33 +1,41 @@
-import { parseArgs } from '../deps.ts'
-import * as show from './show.ts'
-import convert from './convert.ts'
+import {
+  parseArgs,
+  red
+} from '../deps.ts'
+import markit from '../mod.ts'
 
 // parse command line arguments
 const args = parseArgs(Deno.args, {
   alias: { c: 'config', d: 'debug', h: 'help', o: 'output', v: 'version' }
 })
 
-// maybe show help (and exit)
+// show help
 if (args.help || (args._.length === 0) && !args.version) {
-  show.header()
-  show.help()
+  markit.help()
 }
 
-// maybe show version (and exit)
+// or show version
 else if (args.version) {
-  show.version()
+  markit.version()
 }
 
-// otherwise try to run markit
+// or try to run markit
 else {
-  show.header()
   try {
-    convert(args._[0] as string, args.output, args.config)
+    markit.run(args._[0] as string, args.output, args.config)
   } catch (error) {
+    console.log(red(`Error: ${error.message}`))
+    if (error.inputFilePath) {
+      console.log(red(`Input file path: ${error.inputFilePath}`))
+    }
+    if (error.textId) {
+      console.log(red(`Text ID: ${error.textId}`))
+    }
+    if (error.blockId) {
+      console.log(red(`Block ID: ${error.blockId}`))
+    }
     if (args.debug) {
       console.error(error)
-    } else {
-      show.error(error)
     }
   }
 }

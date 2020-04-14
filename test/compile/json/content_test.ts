@@ -1,12 +1,11 @@
-import { assertEquals, assertThrows, readFileStrSync } from '../../../deps_test.ts'
-import Options from '../../../lib/options.ts'
-import content from '../../../lib/json/content.ts'
+import { assertEquals, assertThrows } from '../../../deps_test.ts'
+import options from '../../../src/options/defaults.ts'
+import content from '../../../src/compile/json/content.ts'
 
+/*
 Deno.test({
-  name: 'src/json/content.ts headings',
+  name: 'src/compile/json/content.ts headings',
   fn() {
-    const options = new Options()
-
     // define content to test
     const text1 = '£1 heading 1 £1 text'
     const text2 = '£2 heading 2 £2 text'
@@ -65,10 +64,8 @@ Deno.test({
 })
 
 Deno.test({
-  name: 'src/json/content.ts spans',
+  name: 'src/compile/json/content.ts spans',
   fn() {
-    const options = new Options()
-
     // define content to test
     const text1 = '*bold text*'
     const text2 = '_italic text_'
@@ -132,3 +129,4 @@ Deno.test({
     assertThrows(() => { content(badText5, options) }, Error, 'Unterminated $$ tag.')
   }
 })
+*/

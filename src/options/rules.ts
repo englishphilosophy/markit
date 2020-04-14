@@ -1,37 +1,6 @@
-export type Format = 'html' | 'json' | 'tei' | 'txt'
+import { Rules } from '../types.ts'
 
-export type ContentFormat = 'html' | 'mit' | 'tei' | 'txt'
-
-export type RuleSet = { [C in ContentFormat]: Rules }
-
-export type Tag = '~~'
-                | '~'
-                | '//'
-                | '|'
-                | '£1'
-                | '£2'
-                | '£3'
-                | '£4'
-                | '£5'
-                | '£6'
-                | '""'
-                | '"'
-                | '*'
-                | '_'
-                | '^'
-                | '='
-                | '$'
-                | '#'
-                | '{++text++}'
-                | '{--text--}'
-                | '{~~text1->text2~~}'
-                | '[nX]'
-                | '[text1](text2)'
-                | '[text]'
-
-export type Rules = { [T in Tag]: string[] }
-
-const html: Rules = {
+export const html: Rules = {
   '~~': ['&emsp;'],
   '~': ['&nbsp;'],
   '//': ['<br>'],
@@ -58,7 +27,7 @@ const html: Rules = {
   '[text]': ['<cite>{text}</cite>']
 }
 
-const mit: Rules = {
+export const mit: Rules = {
   '~~': ['~~'],
   '~': ['~'],
   '//': ['//'],
@@ -85,7 +54,7 @@ const mit: Rules = {
   '[text]': ['[{text}]']
 }
 
-const tei: Rules = {
+export const tei: Rules = {
   '~~': ['&emsp;'],
   '~': ['&nbsp;'],
   '//': ['<br />'],
@@ -112,7 +81,7 @@ const tei: Rules = {
   '[text]': ['<ref>{text}</ref>']
 }
 
-const txt: Rules = {
+export const txt: Rules = {
   '£1': ['', '\n'],
   '£2': ['', '\n'],
   '£3': ['', '\n'],
@@ -138,5 +107,3 @@ const txt: Rules = {
   '[text1](text2)': ['[{text1}]'],
   '[text]': ['[{text}]']
 }
-
-export const defaultRules: RuleSet = { html, mit, tei, txt }
