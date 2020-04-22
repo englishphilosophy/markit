@@ -5,12 +5,9 @@ import {
 import { Options } from '../types.ts'
 import readMarkitFile from './json/read.ts'
 import block from './json/block.ts'
+import lemmatize from './json/lemmatize.ts'
 
-export default function json (
-  inputFilePath: string,
-  options: Options,
-  depth: number = 0
-): any {
+export default function json (inputFilePath: string, options: Options, depth: number = 0): any {
   try {
     // read the file contents
     const fileContents = readMarkitFile(inputFilePath)
@@ -63,6 +60,7 @@ export default function json (
         if (depth < options.maximumDepth - 1) {
           stub.texts = text.texts
         }
+        stub.path = path.replace(/\.mit$/, `.${options.format}`)
         return stub
       })
     }
@@ -71,7 +69,7 @@ export default function json (
     result.blocks = []
     if ((depth === 0) || (depth >= 0 && options.textFormat === 'full')) {
       if (content.length > 0) {
-      result.blocks = content.split('\n\n').map(x => block(x, options))
+        result.blocks = content.split('\n\n').map(x => block(x, result.id, options))
       }
     }
 

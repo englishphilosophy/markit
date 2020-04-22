@@ -1,4 +1,4 @@
-import { Options, Rules, Tag } from '../../types.ts'
+import { Rules, Tag } from '../../types.ts'
 
 // generic opening tag
 export function open (tag: Tag, rules: Rules): string {
@@ -17,49 +17,49 @@ export function close (tag: Tag, rules: Rules): string {
 }
 
 // insertion
-export function insertion (text: string, options: Options): string {
-  if (options.rules['{++text++}'] && options.rules['{++text++}'][0] !== undefined) {
-    return options.rules['{++text++}'][0].replace(/{text}/g, text)
+export function insertion (text: string, rules: Rules): string {
+  if (rules['{++text++}'] && rules['{++text++}'][0] !== undefined) {
+    return rules['{++text++}'][0].replace(/{text}/g, text)
   }
   throw new Error('No rule found for \'{++text++}\' tag.')
 }
 
 // deletion
-export function deletion (text: string, options: Options): string {
-  if (options.rules['{--text--}'] && options.rules['{--text--}'][0] !== undefined) {
-    return options.rules['{--text--}'][0].replace(/{text}/g, text)
+export function deletion (text: string, rules: Rules): string {
+  if (rules['{--text--}'] && rules['{--text--}'][0] !== undefined) {
+    return rules['{--text--}'][0].replace(/{text}/g, text)
   }
   throw new Error('No rule found for \'{--text--}\' tag.')
 }
 
 // replacement
-export function replacement (text1: string, text2: string, options: Options): string {
-  if (options.rules['{~~text1->text2~~}'] && options.rules['{~~text1->text2~~}'][0] !== undefined) {
-    return options.rules['{~~text1->text2~~}'][0].replace(/{text1}/g, text1).replace(/{text2}/g, text2)
+export function replacement (text1: string, text2: string, rules: Rules): string {
+  if (rules['{~~text1->text2~~}'] && rules['{~~text1->text2~~}'][0] !== undefined) {
+    return rules['{~~text1->text2~~}'][0].replace(/{text1}/g, text1).replace(/{text2}/g, text2)
   }
   throw new Error('No rule found for \'{~~text1->text2~~}\' tag.')
 }
 
 // footnote
-export function footnote (id: string, options: Options): string {
-  if (options.rules['[nX]'] && options.rules['[nX]'][0] !== undefined) {
-    return options.rules['[nX]'][0].replace(/{X}/g, id)
+export function footnote (id: string, rules: Rules): string {
+  if (rules['[nX]'] && rules['[nX]'][0] !== undefined) {
+    return rules['[nX]'][0].replace(/{X}/g, id)
   }
   throw new Error('No rule found for \'[nX]\' tag.')
 }
 
 // link
-export function link (text1: string, text2: string, options: Options): string {
-  if (options.rules['[text1](text2)'] && options.rules['[text1](text2)'][0] !== undefined) {
-    return options.rules['[text1](text2)'][0].replace(/{text1}/g, text1).replace(/{text2}/g, text2)
+export function link (text1: string, text2: string, rules: Rules): string {
+  if (rules['[text1](text2)'] && rules['[text1](text2)'][0] !== undefined) {
+    return rules['[text1](text2)'][0].replace(/{text1}/g, text1).replace(/{text2}/g, text2)
   }
   throw new Error('No rule found for \'[text1](text2)\' tag.')
 }
 
 // citation
-export function citation (text: string, options: Options): string {
-  if (options.rules['[text]'] && options.rules['[text]'][0] !== undefined) {
-    return options.rules['[text]'][0].replace(/{text}/g, text)
+export function citation (text: string, rules: Rules): string {
+  if (rules['[text]'] && rules['[text]'][0] !== undefined) {
+    return rules['[text]'][0].replace(/{text}/g, text)
   }
   throw new Error('No rule found for \'[text]\' tag.')
 }

@@ -1,4 +1,6 @@
 import {
+  existsSync,
+  readJsonSync,
   parseArgs,
   red
 } from '../deps.ts'
@@ -22,7 +24,25 @@ else if (args.version) {
 // or try to run markit
 else {
   try {
-    markit.run(args._[0] as string, args.output, args.config)
+    let config: any = {}
+    if (existsSync('markit.config.json')) {
+      try {
+        config = readJsonSync('markit.config.json')
+      } catch (ignore) {
+        throw new Error('Invalid markit.config.json file.')
+      }
+    }
+    if (args.config) {
+      if (!existsSync(args.config)) {
+        throw new Error(`Config file '${args.config}' not found.`)
+      }
+      try {
+        config = readJsonSync(args.config)
+      } catch (ignore) {
+        throw new Error(`Invalid config file '${args.config}'.`)
+      }
+    }
+    markit.run(args._[0] as string, args.output, config)
   } catch (error) {
     console.log(red(`Error: ${error.message}`))
     if (error.inputFilePath) {

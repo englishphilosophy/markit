@@ -141,13 +141,13 @@ export default function content (text: string, options: Options): string {
         insertionCheck = rest.match(/^\{\+\+(.*?)\+\+\}/)
         replacementCheck = rest.match(/^\{~~(.*?)->(.*?)~~}/)
         if (deletionCheck) {
-          result += tag.deletion(content(deletionCheck[1], options), options)
+          result += tag.deletion(content(deletionCheck[1], options), options.rules)
           i += deletionCheck[0].length
         } else if (insertionCheck) {
-          result += tag.insertion(content(insertionCheck[1], options), options)
+          result += tag.insertion(content(insertionCheck[1], options), options.rules)
           i += insertionCheck[0].length
         } else if (replacementCheck) {
-          result += tag.replacement(content(replacementCheck[1], options), content(replacementCheck[2], options), options)
+          result += tag.replacement(content(replacementCheck[1], options), content(replacementCheck[2], options), options.rules)
           i += replacementCheck[0].length
         } else {
           // ligature
@@ -173,13 +173,13 @@ export default function content (text: string, options: Options): string {
         citationCheck = text.slice(i).match(/^\[(.*?)\]/)
         if (footnoteCheck) {
           // TODO: add footnote ID to an array, for checking
-          result += tag.footnote(footnoteCheck[1], options)
+          result += tag.footnote(footnoteCheck[1], options.rules)
           i += footnoteCheck[0].length
         } else if (linkCheck) {
-          result += tag.link(content(linkCheck[1], options), linkCheck[2], options)
+          result += tag.link(content(linkCheck[1], options), linkCheck[2], options.rules)
           i += linkCheck[0].length
         } else if (citationCheck) {
-          result += tag.citation(content(citationCheck[1], options), options)
+          result += tag.citation(content(citationCheck[1], options), options.rules)
           i += citationCheck[0].length
         } else {
           throw new Error('Unterminated citation.')

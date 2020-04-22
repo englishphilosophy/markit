@@ -7,10 +7,9 @@ const defaults: Options = {
   textFormat: 'full',
   textStubProperties: [],
   maximumDepth: -1,
-  blockFormat: 'tei',
+  contentFormat: 'tei',
   rules: tei,
-  lemmatize: false,
-  lemmas: {}
+  createLogFile: false
 }
 
 export default defaults

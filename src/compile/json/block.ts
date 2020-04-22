@@ -2,7 +2,7 @@ import { Options } from '../../types.ts'
 import content from './content.ts'
 import lemmatize from './lemmatize.ts'
 
-export default function block (text: string, options: Options): any {
+export default function block (text: string, parentId: string|null, options: Options): any {
   const result: any = {
     name: 'p',
     id: null,
@@ -23,7 +23,7 @@ export default function block (text: string, options: Options): any {
       if (titleCheck) {
         result.name = 'head'
       } else if (idCheck) {
-        result.id = idCheck[1]
+        result.id = parentId ? `${parentId}.${idCheck[1]}` : idCheck[1]
       } else if (nameValueCheck) {
         result[nameValueCheck[1]] = nameValueCheck[2]
       } else {
@@ -34,9 +34,6 @@ export default function block (text: string, options: Options): any {
 
   try {
     result.content = content(text, options)
-    if (options.lemmatize) {
-      result.content = lemmatize(result.content, options.lemmas)
-    }
   } catch (error) {
     error.blockId = result.id
     throw error

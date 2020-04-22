@@ -2,13 +2,14 @@ import {
   dirname,
   existsSync,
   extname,
-  green
+  green,
+  writeFileStrSync
 } from '../deps.ts'
 import loadMitPaths from './run/load_mit_paths.ts'
 import loadOptions from './run/load_options.ts'
 import compileAndSave from './run/compile_and_save.ts'
 
-export default function convert (inputPath: string, outputPath?: string, configPath?: string) {
+export default function convert (inputPath: string, outputPath?: string, config: any = {}) {
   // if input path doesn't exist and doesn't end in '.mit', add '.mit'
   if (!existsSync(inputPath) && extname(inputPath) !== '.mit') {
     inputPath += '.mit'
@@ -26,7 +27,7 @@ export default function convert (inputPath: string, outputPath?: string, configP
   const outputDirectoryPath = outputPath || (inputPathStat.isFile() ? dirname(inputPath) : inputPath)
 
   // get options
-  const options = loadOptions(configPath)
+  const options = loadOptions(config)
 
   // either convert all markit files in the directory
   if (inputPathStat.isDirectory()) {
@@ -36,13 +37,18 @@ export default function convert (inputPath: string, outputPath?: string, configP
       compileAndSave(inputPath, inputFilePath, outputDirectoryPath, options)
     })
     console.log(green(`${mitFiles.length} files created.`))
+    if (options.createLogFile) {
+      mitFiles.sort()
+      writeFileStrSync('markit.log', mitFiles.join('\n'))
+      console.log('markit.log file created.')
+    }
   }
 
   // or convert single file
   else if (inputPathStat.isFile()) {
     console.log(`Converting MIT file '${inputPath}' to ${options.format.toUpperCase()}...`)
     compileAndSave(dirname(inputPath), inputPath, outputDirectoryPath, options)
-    console.log(green('File created.'))
+    console.log(green('1 file created.'))
   }
 
   // or throw an error

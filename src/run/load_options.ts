@@ -1,68 +1,38 @@
-import {
-  existsSync,
-  parseYaml,
-  readFileStrSync,
-  readJsonSync
-} from '../../deps.ts'
 import { Options } from '../types.ts'
 import defaults from '../options/defaults.ts'
 import { html, mit, tei, txt } from '../options/rules.ts'
 
-export default function loadOptions (configPath?: string): Options {
+export default function loadOptions (config: any): Options {
   // initialise default options
   const options = defaults
 
-  // potentially overwrite with options from markit.config.json
-  if (existsSync('markit.config.json')) {
-    try {
-      const localOptions = readJsonSync('markit.config.json')
-      parse(options, localOptions)
-    } catch (ignore) {
-      throw new Error('Invalid markit.config.json file.')
-    }
-  }
-
-  // potentially overwrite from command line config file
-  if (configPath) {
-    if (!existsSync(configPath)) {
-      throw new Error(`Config file '${configPath}' not found.`)
-    }
-    let customOptions
-    try {
-      customOptions = readJsonSync(configPath)
-    } catch (ignore) {
-      throw new Error(`Invalid config file '${configPath}'.`)
-    }
-    parse(options, customOptions)
-  }
-
-  return options
-}
-
-function parse (options: Options, config: any): void {
   if (config.format) {
     switch (config.format) {
       case 'html':
         options.format = config.format
         options.extension = 'html'
+        options.contentFormat = 'html'
         options.rules = html
         break
 
       case 'json':
         options.format = config.format
         options.extension = 'json'
+        options.contentFormat = 'mit'
         options.rules = mit
         break
 
       case 'tei':
         options.format = config.format
         options.extension = 'xml'
+        options.contentFormat = 'tei'
         options.rules = tei
         break
 
       case 'txt':
         options.format = config.format
         options.extension = 'txt'
+        options.contentFormat = 'txt'
         options.rules = txt
         break
     }
@@ -91,24 +61,27 @@ function parse (options: Options, config: any): void {
     }
   }
 
-  if (config.blockFormat) {
-    switch (config.blockFormat) {
+  if (config.contentFormat) {
+    switch (config.contentFormat) {
       case 'html':
+        options.contentFormat = 'html'
         options.rules = html
         break
 
       case 'mit':
+        options.contentFormat = 'mit'
         options.rules = mit
         break
-
+    
       case 'tei':
+        options.contentFormat = 'tei'
         options.rules = tei
         break
 
       case 'txt':
+        options.contentFormat = 'txt'
         options.rules = txt
         break
-
     }
   }
 
@@ -139,10 +112,10 @@ function parse (options: Options, config: any): void {
     options.rules['[text]'] = config.rules['[text]'] || options.rules['[text]']
   }
 
-  if (config.lemmatize === true) {
-    options.lemmatize = true
+  if (config.createLogFile) {
+    options.createLogFile = config.createLogFile
   }
-
+  /*
   if (config.lexicon && (typeof config.lexicon === 'string')) {
     let lexicon: any
     try {
@@ -163,5 +136,7 @@ function parse (options: Options, config: any): void {
         }
       })
     })
-  }
+  }*/
+
+  return options
 }
