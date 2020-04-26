@@ -3,15 +3,14 @@ import {
 } from '../../deps.ts'
 
 export default function mits (directory: string): string[] {
-  const allFiles = Deno.readdirSync(directory)
   const mitFiles: string[] = []
-  allFiles.forEach((fileInfo) => {
-    const fullPath = `${directory}/${fileInfo.name}`
-    if (fileInfo.isDirectory()) {
+  for (const dirEntry of Deno.readdirSync(directory)) {
+    const fullPath = `${directory}/${dirEntry.name}`
+    if (dirEntry.isDirectory) {
       mitFiles.push(...mits(fullPath))
-    } else if (fileInfo.isFile() && extname(fullPath) === '.mit') {
+    } else if (dirEntry.isFile && extname(fullPath) === '.mit') {
       mitFiles.push(fullPath)
     }
-  })
+  }
   return mitFiles
 }

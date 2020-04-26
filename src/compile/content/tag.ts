@@ -1,4 +1,4 @@
-import { Rules, Tag } from '../../types.ts'
+import { Rules, Tag } from '../../rules.ts'
 
 // generic opening tag
 export function open (tag: Tag, rules: Rules): string {

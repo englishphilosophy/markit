@@ -1,22 +1,19 @@
-import { Options } from '../../types.ts'
-import content from './content.ts'
-import lemmatize from './lemmatize.ts'
-
-export default function block (text: string, parentId: string|null, options: Options): any {
+export default function block (text: string, parentId?: string): any {
   const result: any = {
     name: 'p',
     id: null,
-    content: ''
+    content: text.trim()
   }
 
-  const tagCheck = text.match(/^\{(.*?)\}\s+/)
+  const tagCheck = text.match(/^{(.*?)}\s+/)
   if (tagCheck) {
-    // remove the tag from the text
-    text = text.replace(/^\{(.*?)\}\s+/, '')
+    // set the content as everything apart from the tag
+    result.content = result.content.replace(/^{(.*?)}\s+/, '')
 
     // parse the properties
     const properties = tagCheck[1].split(',').map(x => x.trim())
-    properties.forEach((property) => {
+
+    for (const property of properties) {
       const titleCheck = property.match(/^title$/)
       const idCheck = property.match(/^#(.*?)$/)
       const nameValueCheck = property.match(/^(.*?)=(.*?)$/)
@@ -29,14 +26,7 @@ export default function block (text: string, parentId: string|null, options: Opt
       } else {
         throw new Error(`Malformed property "${property}".`)
       }
-    })
-  }
-
-  try {
-    result.content = content(text, options)
-  } catch (error) {
-    error.blockId = result.id
-    throw error
+    }
   }
 
   return result

@@ -5,8 +5,8 @@ import {
   green,
   writeFileStrSync
 } from '../deps.ts'
+import { Options } from './options.ts'
 import loadMitPaths from './run/load_mit_paths.ts'
-import loadOptions from './run/load_options.ts'
 import compileAndSave from './run/compile_and_save.ts'
 
 export default function convert (inputPath: string, outputPath?: string, config: any = {}) {
@@ -24,18 +24,18 @@ export default function convert (inputPath: string, outputPath?: string, config:
   const inputPathStat = Deno.statSync(inputPath)
 
   // set output directory path
-  const outputDirectoryPath = outputPath || (inputPathStat.isFile() ? dirname(inputPath) : inputPath)
+  const outputDirectoryPath = outputPath || (inputPathStat.isFile ? dirname(inputPath) : inputPath)
 
-  // get options
-  const options = loadOptions(config)
+  // initialise options
+  const options = new Options(config)
 
   // either convert all markit files in the directory
-  if (inputPathStat.isDirectory()) {
+  if (inputPathStat.isDirectory) {
     const mitFiles = loadMitPaths(inputPath)
     console.log(`Found ${mitFiles.length} MIT files in '${inputPath}'. Converting to ${options.format.toUpperCase()}...`)
-    mitFiles.forEach((inputFilePath) => {
+    for (const inputFilePath of mitFiles) {
       compileAndSave(inputPath, inputFilePath, outputDirectoryPath, options)
-    })
+    }
     console.log(green(`${mitFiles.length} files created.`))
     if (options.createLogFile) {
       mitFiles.sort()
@@ -45,7 +45,7 @@ export default function convert (inputPath: string, outputPath?: string, config:
   }
 
   // or convert single file
-  else if (inputPathStat.isFile()) {
+  else if (inputPathStat.isFile) {
     console.log(`Converting MIT file '${inputPath}' to ${options.format.toUpperCase()}...`)
     compileAndSave(dirname(inputPath), inputPath, outputDirectoryPath, options)
     console.log(green('1 file created.'))

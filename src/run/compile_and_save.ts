@@ -3,7 +3,7 @@ import {
   ensureDirSync,
   writeFileStrSync
 } from '../../deps.ts'
-import { Options } from '../types.ts'
+import { Options } from '../options.ts'
 import compile from '../compile.ts'
 
 export default function conmpileAndSave (

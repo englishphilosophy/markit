@@ -14,7 +14,7 @@ export default function read (inputFilePath: string): string {
   }
 
   const stat = Deno.statSync(inputFilePath)
-  if (!stat.isFile()) {
+  if (!stat.isFile) {
     throw new Error(`'${inputFilePath}' is not a file.`)
   }
 

@@ -1,8 +1,12 @@
-import { Options, Tag } from '../../types.ts'
-import greek from './greek.ts'
-import * as tag from './tag.ts'
+import { Options } from '../options.ts'
+import { Tag } from '../rules.ts'
+import greek from './content/greek.ts'
+import * as tag from './content/tag.ts'
 
-export default function content (text: string, options: Options): string {
+export default function content (text: string, config: any = {}): string {
+  // initialise options
+  const options = (config instanceof Options) ? config : new Options(config)
+
   // convert to a single line
   text = text.split('\n').map(x => x.trim()).filter(x => x.length > 0).join(' ')
   
@@ -241,6 +245,6 @@ export default function content (text: string, options: Options): string {
     throw new Error('Unterminated $$ tag.')
   }
 
-  // return the result (trimmed)
-  return result.trim()
+  // return the result
+  return result
 }

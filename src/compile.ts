@@ -1,16 +1,17 @@
-import { Options } from './types.ts'
-import defaults from './options/defaults.ts'
+import { Options } from './options.ts'
 import markitToJson from './compile/json.ts'
 import jsonToTei from './compile/tei.ts'
 import jsonToHtml from './compile/html.ts'
 import jsonToTxt from './compile/txt.ts'
 
-export default function markit (inputFilePath: string, options: Options = defaults): string {
+export default function markit (inputFilePath: string, config: any = {}): string {
+  const options = (config instanceof Options) ? config : new Options(config)
+
   const json = markitToJson(inputFilePath, options)
 
   switch (options.format) {
     case 'json':
-      return `${JSON.stringify(json, null, 2)}\n`
+      return `${JSON.stringify(json)}\n`
 
     case 'tei':
       return jsonToTei(json, options)

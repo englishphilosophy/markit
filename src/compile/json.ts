@@ -2,12 +2,14 @@ import {
   dirname,
   parseYaml
 } from '../../deps.ts'
-import { Options } from '../types.ts'
+import { Options } from '../options.ts'
 import readMarkitFile from './json/read.ts'
 import block from './json/block.ts'
-import lemmatize from './json/lemmatize.ts'
 
-export default function json (inputFilePath: string, options: Options, depth: number = 0): any {
+export default function json (inputFilePath: string, config: any = {}, depth: number = 0): any {
+  // initialise options
+  const options = (config instanceof Options) ? config : new Options(config)
+
   try {
     // read the file contents
     const fileContents = readMarkitFile(inputFilePath)
@@ -20,6 +22,11 @@ export default function json (inputFilePath: string, options: Options, depth: nu
 
     // initialise the object (with the contents of the YAML part, if any)
     let result: any = yamlCheck ? parseYaml(yamlCheck[1]) : {}
+    for (const key of Object.keys(result)) {
+      if (typeof result[key] === 'string') {
+        result[key] = result[key].trim()
+      }
+    }
 
     // give empty texts property to files without texts
     // this ensures bottom-level texts don't inherit the texts of their parents
@@ -41,7 +48,7 @@ export default function json (inputFilePath: string, options: Options, depth: nu
       : normalizedText
 
     // map texts
-    if ((0 <= depth) && (depth < options.maximumDepth)) {
+    if ((0 <= depth) && (options.maximumDepth < 0 || depth < options.maximumDepth)) {
       result.texts = result.texts.map((path: string) => {
         if (options.textFormat === 'path') {
           return path.replace(/\.mit$/, `.${options.format}`)
@@ -52,15 +59,14 @@ export default function json (inputFilePath: string, options: Options, depth: nu
         if (options.textFormat === 'full') {
           return text
         }
-    
+
         const stub: any = {}
-        options.textStubProperties.forEach((key) => {
-          stub[key] = text[key] || result[key] // inherit from parent
-        })
-        if (depth < options.maximumDepth - 1) {
+        for (const property of options.textStubProperties) {
+          stub[property] = text[property] || result[property]
+        }
+        if (options.maximumDepth < 0 || depth < options.maximumDepth - 1) {
           stub.texts = text.texts
         }
-        stub.path = path.replace(/\.mit$/, `.${options.format}`)
         return stub
       })
     }
@@ -69,7 +75,7 @@ export default function json (inputFilePath: string, options: Options, depth: nu
     result.blocks = []
     if ((depth === 0) || (depth >= 0 && options.textFormat === 'full')) {
       if (content.length > 0) {
-        result.blocks = content.split('\n\n').map(x => block(x, result.id, options))
+        result.blocks = content.split('\n\n').map(x => block(x, result.id))
       }
     }
 
