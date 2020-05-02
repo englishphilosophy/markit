@@ -9,7 +9,14 @@ export default function content (text: string, config: any = {}): string {
 
   // convert to a single line
   text = text.split('\n').map(x => x.trim()).filter(x => x.length > 0).join(' ')
-  
+
+  // handle json format a bit differently
+  if (options.format === 'json') {
+    if (options.jsonContentFormat === 'mit') {
+      return text
+    }
+  }
+
   const formattingStack = []
   let currentFormat
   let inBlockQuotation = false
@@ -61,7 +68,10 @@ export default function content (text: string, config: any = {}): string {
 
       // ampersands
       case '&':
-        if ((options.format === 'html' || options.format === 'tei') && !(text.slice(i) && text.slice(i).match(/^&[a-z]+;/))) {
+        if ((options.format === 'html' || options.format === 'tei')
+          || (options.jsonContentFormat === 'html' || options.jsonContentFormat === 'tei')
+          && !(text.slice(i) && text.slice(i).match(/^&[a-z]+;/))
+        ) {
           result += '&amp;'
         } else {
           result += text[i]

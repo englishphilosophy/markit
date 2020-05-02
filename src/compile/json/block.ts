@@ -1,4 +1,7 @@
-export default function block (text: string, parentId?: string): any {
+import { Options } from '../../options.ts'
+import content from '../content.ts'
+
+export default function block (text: string, options: Options, parentId?: string): any {
   const result: any = {
     name: 'p',
     id: null,
@@ -28,6 +31,9 @@ export default function block (text: string, parentId?: string): any {
       }
     }
   }
+
+  // format the content
+  result.content = content(result.content, options)
 
   return result
 }

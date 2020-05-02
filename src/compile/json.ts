@@ -5,6 +5,7 @@ import {
 import { Options } from '../options.ts'
 import readMarkitFile from './json/read.ts'
 import block from './json/block.ts'
+import content from './content.ts'
 
 export default function json (inputFilePath: string, config: any = {}, depth: number = 0): any {
   // initialise options
@@ -23,9 +24,7 @@ export default function json (inputFilePath: string, config: any = {}, depth: nu
     // initialise the object (with the contents of the YAML part, if any)
     let result: any = yamlCheck ? parseYaml(yamlCheck[1]) : {}
     for (const key of Object.keys(result)) {
-      if (typeof result[key] === 'string') {
-        result[key] = result[key].trim()
-      }
+      result[key] = prepareProperty(result[key], options)
     }
 
     // give empty texts property to files without texts
@@ -41,11 +40,6 @@ export default function json (inputFilePath: string, config: any = {}, depth: nu
       delete result.inherit
       delete result.parent
     }
-
-    // get the main content of the document (i.e. the non-YAML part)
-    const content = yamlCheck
-      ? normalizedText.replace(/^---\n((.|\n)*?)\n---\n/, '')
-      : normalizedText
 
     // map texts
     if ((0 <= depth) && (options.maximumDepth < 0 || depth < options.maximumDepth)) {
@@ -71,11 +65,16 @@ export default function json (inputFilePath: string, config: any = {}, depth: nu
       })
     }
 
+    // get the main content of the document (i.e. the non-YAML part)
+    const mainText = yamlCheck
+      ? normalizedText.replace(/^---\n((.|\n)*?)\n---\n/, '')
+      : normalizedText
+
     // create blocks from the content (using the block module) and add them to the object
     result.blocks = []
     if ((depth === 0) || (depth >= 0 && options.textFormat === 'full')) {
-      if (content.length > 0) {
-        result.blocks = content.split('\n\n').map(x => block(x, result.id))
+      if (mainText.length > 0) {
+        result.blocks = mainText.split('\n\n').map(x => block(x, options, result.id))
       }
     }
 
@@ -87,4 +86,21 @@ export default function json (inputFilePath: string, config: any = {}, depth: nu
     error.inputFilePath = inputFilePath
     throw error
   }
+}
+
+function prepareProperty (value: any, options: Options): any {
+  if (typeof value === 'object' && value) {
+    for (const key of Object.keys(value)) {
+      value[key] = prepareProperty(value[key], options)
+    }
+  }
+  if (typeof value === 'string') {
+    return (value.slice(0, 4) === 'http')
+      ? value.trim()
+      : content(value.trim(), options)
+  }
+  if (Array.isArray(value)) {
+    return value.map(x => prepareProperty(x, options))
+  }
+  return value
 }

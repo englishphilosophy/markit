@@ -1,8 +1,9 @@
 import { Rules, html, tei, txt } from './rules.ts'
-
+ 
 export class Options {
   format: 'html'|'json'|'tei'|'txt'
   extension: 'html'|'json'|'xml'|'txt'
+  jsonContentFormat: 'html'|'mit'|'tei'|'txt'
   textFormat: 'path'|'stub'|'full'
   textStubProperties: string[]
   maximumDepth: number
@@ -13,6 +14,7 @@ export class Options {
     // set defaults
     this.format = 'tei'
     this.extension = 'xml'
+    this.jsonContentFormat = 'mit'
     this.textFormat = 'full'
     this.textStubProperties = []
     this.maximumDepth = -1
@@ -42,6 +44,29 @@ export class Options {
         case 'txt':
           this.format = config.format
           this.extension = 'txt'
+          this.rules = txt
+          break
+      }
+    }
+
+    if (config.jsonContentFormat) {
+      switch (config.jsonContentFormat) {
+        case 'html':
+          this.jsonContentFormat = 'html'
+          this.rules = html
+          break
+    
+        case 'mit':
+          this.jsonContentFormat = 'mit'
+          break
+    
+        case 'tei':
+          this.jsonContentFormat = 'tei'
+          this.rules = tei
+          break
+    
+        case 'txt':
+          this.jsonContentFormat = 'txt'
           this.rules = txt
           break
       }
