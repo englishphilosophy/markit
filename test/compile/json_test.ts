@@ -10,7 +10,11 @@ Deno.test({
       id: 'Test',
       foo: 'bar',
       texts: [],
-      blocks: [block('{#1} This is a paragraph.', 'Test')]
+      blocks: [
+        block('{title} This is the title.', {}, 'Test'),
+        block('{#1} This is a paragraph.', {}, 'Test'),
+        block('{#n1} This is a footnote.', {}, 'Test')
+      ]
     }
     assertEquals(result, expectedResult)
   }

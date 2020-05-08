@@ -10,7 +10,7 @@ Deno.test({
   fn() {
     const jsonResult = compile('test_files/file.mit', { format: 'json' })
     const json = markitToJson('test_files/file.mit', { format: 'json' })
-    const expectedJsonResult = `${JSON.stringify(json, null, 2)}\n`
+    const expectedJsonResult = `${JSON.stringify(json)}\n`
     assertEquals(jsonResult, expectedJsonResult)
 
     const teiResult = compile('test_files/file.mit', { format: 'tei' })

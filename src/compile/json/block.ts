@@ -1,10 +1,11 @@
 import { Options } from '../../options.ts'
-import content from '../content.ts'
+import content from './content.ts'
 
-export default function block (text: string, options: Options, parentId?: string): any {
+export default function block (text: string, config: any = {}, parentId?: string): any {
+  const options = (config instanceof Options) ? config : new Options(config)
+
   const result: any = {
-    name: 'p',
-    id: null,
+    type: 'paragraph',
     content: text.trim()
   }
 
@@ -21,8 +22,12 @@ export default function block (text: string, options: Options, parentId?: string
       const idCheck = property.match(/^#(.*?)$/)
       const nameValueCheck = property.match(/^(.*?)=(.*?)$/)
       if (titleCheck) {
-        result.name = 'head'
+        result.type = 'title'
       } else if (idCheck) {
+        result.subId = idCheck[1]
+        if (result.subId[0] === 'n') {
+          result.type = 'note'
+        }
         result.id = parentId ? `${parentId}.${idCheck[1]}` : idCheck[1]
       } else if (nameValueCheck) {
         result[nameValueCheck[1]] = nameValueCheck[2]
@@ -33,7 +38,12 @@ export default function block (text: string, options: Options, parentId?: string
   }
 
   // format the content
-  result.content = content(result.content, options)
+  try {
+    result.content = content(result.content, options)
+  } catch (error) {
+    console.log(result.id)
+    throw error
+  }
 
   return result
 }

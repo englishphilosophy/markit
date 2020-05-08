@@ -1,8 +1,8 @@
-import { assertEquals, assertThrows } from '../../deps_test.ts'
-import content from '../../src/compile/content.ts'
+import { assertEquals, assertThrows } from '../../../deps_test.ts'
+import content from '../../../src/compile/json/content.ts'
 
 Deno.test({
-  name: 'src/compile/content.ts headings',
+  name: 'src/compile/json/content.ts headings',
   fn() {
     // define content to test
     const text1 = '£1 heading 1 £1 text'
@@ -50,7 +50,7 @@ Deno.test({
 })
 
 Deno.test({
-  name: 'src/compile/content.ts spans',
+  name: 'src/compile/json/content.ts spans',
   fn() {
     // define content to test
     const text1 = '*bold text*'

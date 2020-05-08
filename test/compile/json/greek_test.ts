@@ -1,8 +1,8 @@
 import { assertEquals, assertThrows } from '../../../deps_test.ts'
-import greek from '../../../src/compile/content/greek.ts'
+import greek from '../../../src/compile/json/greek.ts'
 
 Deno.test({
-  name: 'src/compile/content/greek.ts',
+  name: 'src/compile/json/greek.ts',
   fn() {
     const romanLC = 'abgdezhjiklmnxoprqstufcyw'.split('')
     const greekLC = 'αβγδεζηθικλμνξοπρςστυφχψω'.split('')

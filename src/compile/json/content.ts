@@ -1,7 +1,7 @@
-import { Options } from '../options.ts'
-import { Tag } from '../rules.ts'
-import greek from './content/greek.ts'
-import * as tag from './content/tag.ts'
+import { Options } from '../../options.ts'
+import { Tag } from '../../rules.ts'
+import greek from './greek.ts'
+import * as tag from './tag.ts'
 
 export default function content (text: string, config: any = {}): string {
   // initialise options

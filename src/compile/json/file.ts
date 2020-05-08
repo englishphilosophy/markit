@@ -23,7 +23,7 @@ export default function read (inputFilePath: string): string {
   }
 
   try {
-    return readFileStrSync(inputFilePath)
+    return readFileStrSync(inputFilePath).replace(/\r\n/g, '\n')
   } catch (error) {
     throw new Error(`Failed to read contents of '${inputFilePath}'.`)
   }
