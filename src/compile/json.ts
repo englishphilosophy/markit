@@ -33,7 +33,9 @@ export default function json (inputFilePath: string, config: any = {}, depth: nu
         result[key] = result[key] || inheritResult[key]
       }
       delete result.inherit
-      delete result.parent
+      if (result.parent) {
+        result.parent = inheritResult.id
+      }
     }
 
     // map texts

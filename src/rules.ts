@@ -102,7 +102,7 @@ export const txt: Rules = {
   '{++text++}': ['{text}'],
   '{--text--}': [''],
   '{~~text1->text2~~}': ['{text2}'],
-  '[nX]': ['[n{X}'],
+  '[nX]': ['[n{X}]'],
   '[text1](text2)': ['[{text1}]'],
   '[text]': ['[{text}]']
 }
