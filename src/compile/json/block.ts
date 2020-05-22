@@ -23,7 +23,9 @@ export default function block (text: string, config: any = {}, parentId?: string
       const nameValueCheck = property.match(/^(.*?)=(.*?)$/)
       if (titleCheck) {
         result.type = 'title'
-        result.id = parentId
+        if (parentId) {
+          result.id = parentId
+        }
       } else if (idCheck) {
         result.subId = idCheck[1]
         if (result.subId[0] === 'n') {
