@@ -52,7 +52,7 @@ in ^small capitals^.
 ```
 
 TEI-XML output:
-```
+```xml
 <TEI xmlns="http://www.tei-c.org/ns/1.0">
   <teiHeader>
     <titleStmt>
