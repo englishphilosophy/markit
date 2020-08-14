@@ -1,26 +1,24 @@
 export {
   green,
   red
-} from 'https://deno.land/std@v0.57.0/fmt/colors.ts'
+} from 'https://deno.land/std@v0.65.0/fmt/colors.ts'
 
 export {
   ensureDirSync,
   existsSync,
-  readFileStrSync,
-  readJsonSync,
-  writeFileStrSync
-} from 'https://deno.land/std@v0.57.0/fs/mod.ts'
+  readJsonSync
+} from 'https://deno.land/std@v0.65.0/fs/mod.ts'
 
 export {
   parse as parseArgs
-} from 'https://deno.land/std@v0.57.0/flags/mod.ts'
+} from 'https://deno.land/std@v0.65.0/flags/mod.ts'
 
 export {
   basename,
   dirname,
   extname
-} from 'https://deno.land/std@v0.57.0/path/mod.ts'
+} from 'https://deno.land/std@v0.65.0/path/mod.ts'
 
 export {
   parse as parseYaml
-} from 'https://deno.land/std@v0.57.0/encoding/yaml.ts'
+} from 'https://deno.land/std@v0.65.0/encoding/yaml.ts'

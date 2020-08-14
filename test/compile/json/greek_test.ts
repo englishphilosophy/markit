@@ -1,4 +1,4 @@
-import { assertEquals, assertThrows } from '../../../deps_test.ts'
+import { assertEquals } from '../../../deps_test.ts'
 import greek from '../../../src/compile/json/greek.ts'
 
 Deno.test({

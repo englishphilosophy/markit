@@ -2,8 +2,7 @@ import {
   dirname,
   existsSync,
   extname,
-  green,
-  writeFileStrSync
+  green
 } from '../deps.ts'
 import { Options } from './options.ts'
 import loadMitPaths from './run/load_mit_paths.ts'
@@ -39,7 +38,7 @@ export default function convert (inputPath: string, outputPath?: string, config:
     console.log(green(`${mitFiles.length} files created.`))
     if (options.createLogFile) {
       mitFiles.sort()
-      writeFileStrSync('markit.log', mitFiles.join('\n'))
+      Deno.writeTextFileSync('markit.log', mitFiles.join('\n'))
       console.log('markit.log file created.')
     }
   }

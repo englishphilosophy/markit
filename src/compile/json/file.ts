@@ -1,7 +1,6 @@
 import {
   existsSync,
-  extname,
-  readFileStrSync
+  extname
 } from '../../../deps.ts'
 
 export default function read (inputFilePath: string): string {
@@ -23,7 +22,7 @@ export default function read (inputFilePath: string): string {
   }
 
   try {
-    return readFileStrSync(inputFilePath).replace(/\r\n/g, '\n')
+    return Deno.readTextFileSync(inputFilePath).replace(/\r\n/g, '\n')
   } catch (error) {
     throw new Error(`Failed to read contents of '${inputFilePath}'.`)
   }

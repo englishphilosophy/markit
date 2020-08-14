@@ -1,7 +1,6 @@
 import {
   dirname,
-  ensureDirSync,
-  writeFileStrSync
+  ensureDirSync
 } from '../../deps.ts'
 import { Options } from '../options.ts'
 import compile from '../compile.ts'
@@ -17,6 +16,6 @@ export default function conmpileAndSave (
     .replace(/\.mit$/, `.${options.extension}`)
     .replace(new RegExp(`^${inputDirectoryPath}`), outputDirectoryPath)
   ensureDirSync(dirname(outputFilePath))
-  writeFileStrSync(outputFilePath, result)
+  Deno.writeTextFileSync(outputFilePath, result)
 }
   
