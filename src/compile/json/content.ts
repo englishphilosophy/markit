@@ -184,7 +184,7 @@ export default function content (text: string, config: any = {}): string {
       case '[':
         footnoteCheck = text.slice(i).match(/^\[n([0-9*]+)\]/)
         linkCheck = text.slice(i).match(/^\[([^\[\]]*?)\]\((.*?)\)/)
-        citationCheck = text.slice(i).match(/^\[(.*?)\]/)
+        citationCheck = text.slice(i).match(/^\[((.*?)[^\\])\]/)
         if (footnoteCheck) {
           // TODO: add footnote ID to an array, for checking
           result += tag.footnote(footnoteCheck[1], options.rules)
