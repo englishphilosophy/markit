@@ -12,6 +12,6 @@ export default {
     console.log('Usage: markit inputPath [-c configFilePath]')
   },
   version: function () {
-    console.log('v0.3.0')
+    console.log('v0.4.0')
   }
 }
