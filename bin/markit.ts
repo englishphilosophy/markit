@@ -1,6 +1,5 @@
 import {
   existsSync,
-  readJsonSync,
   parseArgs,
   red
 } from '../deps.ts'
@@ -27,7 +26,7 @@ else {
     let config: any = {}
     if (existsSync('markit.config.json')) {
       try {
-        config = readJsonSync('markit.config.json')
+        config = JSON.parse(Deno.readTextFileSync('markit.config.json'))
       } catch (ignore) {
         throw new Error('Invalid markit.config.json file.')
       }
@@ -37,7 +36,7 @@ else {
         throw new Error(`Config file '${args.config}' not found.`)
       }
       try {
-        config = readJsonSync(args.config)
+        config = JSON.parse(Deno.readTextFileSync(args.config))
       } catch (ignore) {
         throw new Error(`Invalid config file '${args.config}'.`)
       }

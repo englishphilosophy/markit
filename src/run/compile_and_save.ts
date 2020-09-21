@@ -2,7 +2,7 @@ import {
   dirname,
   ensureDirSync
 } from '../../deps.ts'
-import { Options } from '../options.ts'
+import type { Options } from '../options.ts'
 import compile from '../compile.ts'
 
 export default function conmpileAndSave (
