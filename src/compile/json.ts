@@ -30,7 +30,7 @@ export default function json (inputFilePath: string, config: any = {}, depth: nu
       const inheritFilePath = `${dirname(inputFilePath)}/${inherit}`
       const inheritResult = json(inheritFilePath, options, depth - 1)
       for (const key of Object.keys(inheritResult)) {
-        result[key] = result[key] || inheritResult[key]
+        if (result[key] === undefined) result[key] = inheritResult[key]
       }
       delete result.inherit
       if (result.parent) {
@@ -57,7 +57,7 @@ export default function json (inputFilePath: string, config: any = {}, depth: nu
               const subResult = json(`${dirname(inputFilePath)}/${path}`, options, depth + 1)
               const stub: any = {}
               for (const property of options.textStubProperties) {
-                stub[property] = subResult[property] || result[property]
+                stub[property] = (subResult[property] === undefined) ? result[property] : subResult[property]
               }
               if (options.maximumDepth < 0 || depth < options.maximumDepth - 1) {
                 stub.texts = subResult.texts
