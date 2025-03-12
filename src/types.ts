@@ -1,6 +1,16 @@
-export type Markit = MetaData & { blocks: Block[] };
+export type Format = "txt" | "html";
 
-export type MetaData = Record<string, unknown> & { id?: string };
+export type Markit = Omit<Stub, "texts"> & {
+  previous?: Stub;
+  next?: Stub;
+  texts: Stub[];
+  blocks: Block[];
+};
+
+export type Stub = Record<string, unknown> & {
+  id: string;
+  texts?: string[];
+};
 
 export type Block = Record<string, string> & {
   type: "title" | "paragraph" | "note";
