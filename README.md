@@ -51,27 +51,8 @@ interest in using it for other projects.
 
 ## 2. Usage
 
-There are two ways to use Markit:
-
-1. As a standalone program, which you can install on your computer and run from
-   the command line.
-2. As a JavaScript/TypeScript library, which you can import into your own
-   project.
-
-### 2.1. Command Line Usage
-
-Download the executable (available for Windows and MacOS) from the `build`
-directory (above). You can then run the executable from the command line:
-
-```sh
-./markit validate [inputDir]
-./markit convert [inputDir] [outputDir]
-```
-
-### 2.2. Library Usage
-
 Markit is written in TypeScript and runs in Deno. You can get it from the JSR
-registry (link).
+registry: [@englishphilosophy/markit](https://jsr.io/@englishphilosophy/markit).
 
 The repository exposes two functions:
 
