@@ -1,16 +1,16 @@
 # Markit
 
-Markit is a terse markup language similar to Markdown, but with a few key
+Markit is a terse markup language very similar to Markdown, but with a few key
 differences described below. It is intended for use in digital humanities
 projects, for storing and editing texts in a format that is easy to read and
-write, but which can be converted to a more structured format when needed.
+write, but which can be converted into a more structured format when needed.
 
 Markit provides a _validator_ that checks the syntax of a Markit file, and any
 cross-referential errors in the corpus as a whole (e.g. if a parent text refers
 to a child text that does not exist).
 
 It also provides a _converter_ that translates Markit files into structured
-JSON, with the underlying text itself formatted as both HTML and plain text
+JSON, with the underlying text itself formatted as either HTML or plain text
 (i.e. stripped of all markup - useful for searches and textual analysis).
 
 ## 1. Why Does Markit Exist?
@@ -27,22 +27,21 @@ Markdown is a much nicer format for human beings to read and write, and it can
 be easily translated into HTML for displaying texts on the web. But:
 
 1. Markdown lacks some markup options that are useful in textual scholarship -
-   e.g. for small capitals (a common format in many historical texts), for
-   footnotes, for citations, or for mentions of named individuals. You can get
-   around these issues somewhat by just including your own HTML in a Markdown
-   file - but then you lose precisely the benefit of Markdown's conciseness in
-   those cases.
+   e.g. for small capitals (a common format in many historical texts), margin
+   comments, footnotes, or citations. You can get around these issues somewhat
+   by just including your own HTML in a Markdown file - but then you lose
+   precisely the benefit of Markdown's conciseness in those cases.
 2. Since Markdown is specifically aimed at generating HTML, there aren't any
    standard tools for _stripping_ the markup from a Markdown file, so that you
    can search or analyse the plain text content.
-3. More fundamentally, Markdown lacks any way to mark up the _structure_ of a
-   text (dividing it into books, parts, sections, chapters, etc.). This is a
-   deal-breaker in most cases for textual scholarship.
+3. More fundamentally, Markdown doesn't have a very satisfactory way to mark up
+   the _structure_ of a text (dividing it into books, parts, sections, chapters,
+   etc.). This is a deal-breaker in most cases for textual scholarship.
 
 Markit is basically Markdown, but with the three limitations above addressed. It
 has some additional markup options for things useful in textual scholarship, it
-outputs plain text as well as HTML, and it provides a way to mark up the
-structure of a text.
+outputs plain text as well as HTML, and it provides a convenient way to work
+with structured texts of arbitrary complexity.
 
 At the moment, the additional markup options are hard-coded to what is needed
 for the [English Philosophical
@@ -74,81 +73,109 @@ directory (above). You can then run the executable from the command line:
 Markit is written in TypeScript and runs in Deno. You can get it from the JSR
 registry (link).
 
-The repository exposes three functions:
+The repository exposes two functions:
 
-- `compiler(inputDirectory: string, outputDirectory: string): Promise<number>`:
-  Compiles all Markit files in the `inputDirectory` and saves the JSON output to
-  the `outputDirectory`. Returns a promise that resolves to the number of files
-  converted.
-- `validator(inputDirectory: string): Promise<string[]>`: Validates all Markit
-  files in `inputDirectory`. Returns a promise that resolves to an array of
-  errors.
-- `markit(content: string, format: "txt" | "html", corpus?: Stub[]): Markit`:
-  Parses the content of a Markit file and returns the structured data. The
-  `format` parameter specifies whether the text content should be formatted as
-  plain text or HTML. The `corpus` parameter is an array of "stubs" (structured
-  data without the text content) that the parser can refer to when resolving
-  cross-references (explained below).
+- `compile(path: string, options: CompileOptions): Promise<Markit[]>`: Parses
+  the content of one or more Markit files at the given `path`, and returns the
+  structured data.
 
-The `compiler` and `validator` rely on Deno-specific APIs for reading and
-writing files. If you want to use these functions with Node or Bun, let me know.
-I could add support for different runtimes, but it's not a priority unless
-someone asks for it.
+  Options:
+  - `contextDirectory: string | null`: optional path to the directory of all
+  Markit files in the corpus (`null` by default). - `format: "markit" | "text" |
+  "html"`: output format for the text content (`"markit"` by default). -
+  `outputDirectory: string | null`: optional path to the directory where the
+  output JSON is saved to disk (`null` by default).
+  - `emptyOutputDirectory: boolean`: delete all files in the output directory
+    before creating the new ones (`true` by default).
+  - `clearContextCache: boolean`: optionally clear the context cache for the
+    corpus (`false` by default).
+- `validate(path: string, options: ValidateOptions): Promise<string[]>`:
+  Validates all Markit files in `inputDirectory`. Returns an array of errors.
 
-The `markit` function is pure TypeScript that should work in any JavaScript
-runtime.
+  Options:
+  - `contextDirectory: string | null`: optional path to the directory of all
+    Markit files in the corpus (`null` by default).
+  - `logErrors: boolean`: optionally log errors to the console as well as
+    returning them (`false` by default).
+  - `clearContextCache: boolean`: optionally clear the context cache for the
+    corpus (`false` by default).
+
+These two functions rely on Deno-specific APIs for reading and writing files. If
+you want to use these functions with Node or Bun, let me know. I could add
+support for different runtimes, but it's not a priority unless someone asks for
+it.
 
 ## 3. The Structure of a Markit File
 
-A Markit file is just a text file with a `.mit` extension. A _valid_ Markit file
-on the other hand... Well, there's quite a lot to cover there. I'll start at the
-bottom, and work my way up. But you might also like to take a look at the
+A Markit file is just a text file with a `.mit` extension. The rules for _valid_
+Markit are described below. But you might also like to take a look at the
 [English Philosophical
 Texts](https://github.com/englishphilosophy/english-philosophical-texts)
 repository, which has texts illustrating all of the features.
 
 ### 3.1. Basic Textual Markup
 
-Basic textual markup looks a lot like Markdown, but there are a few more options:
+Basic textual markup looks a lot like Markdown, but there are a few more
+options:
 
-| Markit Input  | Meaning              | HTML Output                        |
-| ------------- | -------------------- | ---------------------------------- |
-| `\S`          | section symbol       | `§`                                |
-| `&`           | ampersand            | `&amp;`                            |
-| `~`           | a space              | `&nbsp;`                           |
-| `~~`          | a large space / tab  | `&emsp;`                           |
-| `//`          | a line break         | `<br>`                             |
-| `\|`          | a page break         | `<span class="page-break"></span>` |
-| `£1 Title £1` | a level 1 heading    | `<h1>Title</h1>`                   |
-| `£2 Title £2` | a level 2 heading    | `<h2>Title</h2>`                   |
-| `£3 Title £3` | a level 3 heading    | `<h3>Title</h3>`                   |
-| `£4 Title £4` | a level 4 heading    | `<h4>Title</h4>`                   |
-| `£5 Title £5` | a level 5 heading    | `<h5>Title</h5>`                   |
-| `£6 Title £6` | a level 6 heading    | `<h6>Title</h6>`                   |
-| `"text"`      | an inline quotation  | `<q>text</q>`                      |
-| `""text""`    | a block quotation    | `<blockquote>text</blockquote>`    |
-| `*text*`      | strong text          | `<strong>text</strong>`            |
-| `_text_`      | emphasised text      | `<em>text</em>`                            |
-| `^text^`      | small-caps text      | `<span class="small-capitals">text</span>` |
-| `=text=`      | names                | `<span class="name">text</span>`           |
-| `$text$`      | foreign text                 | `<span class="foreign">text</span>`        |
-| `$$tect$$`    | Greek text in Latin alphabet | `<span class="foreign">τεχτ</span>`        |
-| `#text#`      | margin comment               | `<span class="margin-comment">text</span>` |
-   assertEquals(content("{ae}", "txt"), "æ");
-   assertEquals(content("{AE}", "txt"), "Æ");
-   assertEquals(content("{oe}", "txt"), "œ");
-   assertEquals(content("{OE}", "txt"), "Œ");
-   content("{++insertion++}", "html"), "<p><ins>insertion</ins></p>"
-   content("{--deletion--}", "html"), "<p><del>deletion</del></p>"
-   content("{~~old->new~~}", "html"), "<p><del>old</del><ins>new</ins></p>"
-   content("[n1]", "html"), '<p><a href="#n1"><sup>[1]</sup></a></p>'
-   content("[description](url)", "html"), '<p><a href="url">description</a></p>'
-   assertEquals(content("[citation]", "html"), "<p><cite>citation</cite></p>");
-
+| Markit Input         | Meaning                      | HTML Output                                |
+| -------------------- | ---------------------------- | ------------------------------------------ |
+| `\S`                 | section symbol               | `§`                                        |
+| `&`                  | ampersand                    | `&amp;`                                    |
+| `~`                  | a space                      | `&nbsp;`                                   |
+| `~~`                 | a large space / tab          | `&emsp;`                                   |
+| `//`                 | a line break                 | `<br>`                                     |
+| `\|`                 | a page break                 | `<span class="page-break"></span>`         |
+| `£1 Title £1`        | a level 1 heading            | `<h1>Title</h1>`                           |
+| `£2 Title £2`        | a level 2 heading            | `<h2>Title</h2>`                           |
+| `£3 Title £3`        | a level 3 heading            | `<h3>Title</h3>`                           |
+| `£4 Title £4`        | a level 4 heading            | `<h4>Title</h4>`                           |
+| `£5 Title £5`        | a level 5 heading            | `<h5>Title</h5>`                           |
+| `£6 Title £6`        | a level 6 heading            | `<h6>Title</h6>`                           |
+| `"text"`             | an inline quotation          | `<q>text</q>`                              |
+| `""text""`           | a block quotation            | `<blockquote>text</blockquote>`            |
+| `*text*`             | strong text                  | `<strong>text</strong>`                    |
+| `_text_`             | emphasised text              | `<em>text</em>`                            |
+| `^text^`             | small-caps text              | `<span class="small-capitals">text</span>` |
+| `$text$`             | foreign text                 | `<span class="foreign">text</span>`        |
+| `$$tect$$`           | Greek text in Latin alphabet | `<span class="foreign">τεχτ</span>`        |
+| `#text#`             | margin comment               | `<span class="margin-comment">text</span>` |
+| `{ae}`               | "ae" ligature                | `æ`                                        |
+| `{AE}`               | "AE" ligature                | `Æ`                                        |
+| `{oe}`               | "oe" ligature                | `œ`                                        |
+| `{OE}`               | "OE" ligature                | `Œ`                                        |
+| `{++insertion++}`    | editorial insertion          | `<ins>insertion</ins>`                     |
+| `{--deletion--}`     | editorial deletion           | `<del>deletion</del>`                      |
+| `{~~old->new~~}`     | editorial change             | `<del>old</del><ins>new</ins>`             |
+| `[n1]`               | footnote reference           | `<a href="#n1"><sup>[1]</sup></a>`         |
+| `[description](url)` | URL                          | `<a href="url">description</a>`            |
+| `[citation]`         | citation                     | `<cite>citation</cite>`                    |
 
 ### 3.2. Document Blocks (Title, Paragraphs, Footnotes)
 
-TODO
+Most white space is meaningless in Markit - line breaks are treated as spaces
+(to enable hard wrapping of lines), and spaces at the start and end of lines are
+stripped.
+
+However, two consecutive line breaks divide the text up into _blocks_ - in the
+same way that two consecutive line breaks divide text into paragraphs in
+Markdown. The differences from Markdown are that each block of text may be a
+title, paragraph, or footnote; and that blocks can contain metadata.
+
+Metadata is given inside curly brackets at the start of a block, as a
+comma-separated list of key-value pairs:
+
+```
+{key1=value1,key2=value2,key3=value3}
+```
+
+An exeption is the `title` key, which indicates that the block is a title, and
+takes no associated value. Each file can have at most one title block.
+
+All blocks must have an `id` property. This should conventionally be a number.
+If the `id` starts with an `"n"` (e.g. `id=n12`), the block is treated as a
+footnote; otherwise it is treated as a paragraph. The `title` block should _not_
+have an `id` - its `id` will be equal to that of the document (see below).
 
 ### 3.3. Metadata
 
@@ -166,9 +193,9 @@ date: 2021-01-01
 The text content goes here.
 ```
 
-You can include any metadata you want (in addition to the `id` - see below).
-When the file is converted to JSON, whatever fields you have included will be
-included in the JSON output.
+You can include any metadata you want (in addition to the `id`, which is
+required - see below). When the file is converted to JSON, whatever fields you
+have included will be included in the JSON output.
 
 ## 4. Representing Structured Texts
 
@@ -210,11 +237,15 @@ Title of the Book
 The `texts` field is optional, but if present it _must_ be an array of strings,
 where each string is the ID of another text in the corpus.
 
-If the `texts` field is present in a Markit file, the JSON output will include
-(in addition to the `texts` array itself) a `children` field, which contains the
-metadata of each of the children. This is useful for creating more efficient
-user interfaces for reading the texts - saving you from having to read the JSON
-files for each child separately when e.g. creating tables of contents.
+If the `texts` field is present in a Markit file, the JSON output will include a
+`children` field, which contains the metadata of each of the children. This is
+useful for creating more efficient user interfaces for reading the texts -
+saving you from having to read the JSON files for each child separately when
+e.g. creating tables of contents.
+
+**Note:** For this to work, you must include a path to the `contextDirectory`
+for your corpus in the `options` to the `compile` function. The compiler will
+treat all the Markit files in this directory as part of your corpus.
 
 ### 4.2. IDs, Parent Texts, and Metadata Inheritance
 

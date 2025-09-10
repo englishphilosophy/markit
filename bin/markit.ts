@@ -1,5 +1,5 @@
-import compile from "./compile.ts";
-import validate from "./validate.ts";
+import compile from "../src/compile.ts";
+import validate from "../src/validate.ts";
 
 const [command, inputDir, outputDir] = Deno.args;
 
@@ -17,10 +17,10 @@ if (command !== "compile" && command !== "validate") {
 
 switch (command) {
   case "compile":
-    compile(inputDir, outputDir);
+    compile(inputDir, { outputDirectory: outputDir });
     break;
 
   case "validate":
-    validate(inputDir);
+    validate(inputDir, { logErrors: true });
     break;
 }

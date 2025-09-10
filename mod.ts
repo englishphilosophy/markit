@@ -1,5 +1,3 @@
-import markit from "./src/compiler/markit.ts";
-import compiler from "./src/compiler.ts";
-import validator from "./src/validator.ts";
-
-export { compiler, markit, validator };
+export { default as compile } from "./src/compile.ts";
+export * from "./src/types.ts";
+export { default as validate } from "./src/validate.ts";
