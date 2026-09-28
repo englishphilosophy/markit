@@ -2,6 +2,8 @@
 
 Markit is a markup language for textual preservation. Files use the `.mit` extension. The compiler is error-tolerant: it always produces JSON output and accumulates diagnostics separately.
 
+This document is normative: it states what is legal and what each construct compiles to. It is not a tutorial — for that, see the [guide](./GUIDE.md). For the compiler's programmatic surface, see the [API reference](./API.md). §5 is a one-page index of every marker in the language.
+
 ## 1. Document Structure
 
 ### 1.1. Texts and IDs
@@ -86,7 +88,7 @@ Lines starting with `^` followed by a number from 1 to 6 indicate headings of di
 
 Lines starting with `:` indicate stage directions. Consecutive lines collapse into a single paragraph inside the stage direction; for multiple paragraphs, leave a blank line starting with `:`.
 
-```
+```markit
 : This is a stage direction.
 :
 : Second paragraph inside the stage direction.
@@ -98,7 +100,7 @@ A stage direction may contain any block-level element except a heading. Strip on
 
 Lines starting with `>` indicate block quotations. Consecutive lines collapse into a single paragraph inside the block quotation; for multiple paragraphs, leave a blank line starting with `>`.
 
-```
+```markit
 > This is a block quote.
 >
 > Second paragraph inside the quote.
@@ -106,7 +108,7 @@ Lines starting with `>` indicate block quotations. Consecutive lines collapse in
 
 A block quotation may contain any block-level element except a heading. Each line has one `>` (and an optional single space) stripped, and the remainder is parsed as ordinary block content. So a quotation can hold lists, verse, tables, and nested quotations or stage directions. Nesting a quotation uses a doubled marker (`>>`), and a heading inside a quotation is a syntax error.
 
-```
+```markit
 > As the argument runs:
 >
 > - first the premise,
@@ -120,7 +122,7 @@ A block quotation may contain any block-level element except a heading. Each lin
 
 Markit supports both ordered and unordered lists, with nesting to arbitrary depth. Unordered list items start with `-`, ordered list items start with a number followed by a period (e.g. `1.`). Nested lists use 2-space indent. Ordered lists can start at any number; subsequent items always increment by 1.
 
-```
+```markit
 - Item 1
 - Item 2
   - Subitem 2.1
@@ -134,7 +136,7 @@ Markit supports both ordered and unordered lists, with nesting to arbitrary dept
 
 Lines of verse start with `*`. A blank line separates stanzas (each stanza is a separate block).
 
-```
+```markit
 * Fear no more the heat o' the sun,
 * Nor the furious winter's rages;
 * Thou thy worldly task hast done,
@@ -148,7 +150,7 @@ Lines of verse start with `*`. A blank line separates stanzas (each stanza is a 
 
 Tables are defined by rows of pipe-separated cells, with an optional header row. The first row determines the number of columns. For example:
 
-```
+```markit
 | Header 1 | Header 2 |
 |----------|----------|
 | Cell 1   | Cell 2   |
@@ -160,7 +162,7 @@ Without separator row, the table is rendered without a header.
 
 If a line does not match any of the above patterns, it is treated as a paragraph. Consecutive lines form one paragraph.
 
-```
+```markit
 This is a paragraph.
 This is the same paragraph, because there is no blank line in between.
 
@@ -186,7 +188,7 @@ Block-level elements can contain a mixture of plan text and inline elements. Inl
 | `<nID>`             | `footnoteReference` | Must match a `footnote` block in same text           |
 | `~`                 | `nbSpace`           | Non-breaking space                                   |
 | `~~`                | `tab`               | Tab                                                  |
-| `\\`                | `lineBreak`         | Line break                                           |
+| `\`                 | `lineBreak`         | Line break; only before a space or end of line       |
 | `///`               | `pageBreak`         | No page reference                                    |
 | `//ref//`           | `pageBreak`         | `ref` is any non-whitespace string                   |
 | `[+text+]`          | `insertion`         | Editorial insertion                                  |
@@ -202,15 +204,24 @@ Block-level elements can contain a mixture of plan text and inline elements. Inl
 | `[w:surface=word]`  | `word`              | Disambiguated form (see §3.5)                        |
 | `<<tag…>>…<</tag>>` | `element`           | Generic/raw element (escape hatch); see §3.4         |
 
+Wrappers may nest, and their content is itself parsed as inline content. An empty wrapper (`**`, `""`) and an unclosed one are both diagnostics; in each case the delimiters are left as literal text. Which marker is tried first where two could match is fixed — see §5.2.
+
+A page break is **tight** when a non-whitespace character abuts it on both sides in the source (`be///ginning`), and **loose** otherwise. The distinction is recorded in the output (`tight: true`) and is semantic, not cosmetic: a tight break falls inside a word, so it renders and extracts to nothing and the word either side is joined into one token; a loose break is a word boundary and contributes a single space.
+
 ### 3.2. Whitespace
 
 In inline content, multiple spaces collapse to one space, and multiple blank lines collapse to one blank line. Single line breaks within a block are treated as spaces.
 
-You can use the `~` (non-breaking space), `~~` (em space / tab), and `\\` (line break) markers to preserve spacing/breaks explicitly.
+You can use the `~` (non-breaking space), `~~` (em space / tab), and `\` (line break) markers to preserve spacing/breaks explicitly.
 
-### 3.3. Escape Sequences
+### 3.3. Escape Sequences and Line Breaks
 
-Prefix any special character with `\` to use it literally (e.g. `\*`, `\\`, `\{`). A trailing `\` with nothing after it is treated as a literal backslash.
+A backslash has two meanings, decided by the character after it:
+
+- Followed by a space or the end of the line, it is a **hard line break** (`lineBreak`). The formatter writes this form canonically as ` \` at the end of a line, with the following text starting the next line.
+- Followed by anything else, it **escapes** that character, which is then taken literally: `\*`, `\{`, `\[`. A literal backslash is therefore `\\` (an escaped backslash), not a line break.
+
+Both meanings apply everywhere in inline content, including inside wrappers. Inside a transliteration mode (§4) the escape still works, but over a different set of special characters (§4.3).
 
 ### 3.4. Generic Elements
 
@@ -229,7 +240,7 @@ This element carries no inherent display semantics; renderers fall back to emitt
 
 Early modern spelling is often ambiguous: a single printed form can stand for what are, to a modern reader, two different words. A word element records both — the surface form exactly as printed, and the intended (disambiguated) word — without altering the text a reader sees:
 
-```
+```markit
 but of very little use in [w:humane=human] Life
 ```
 
@@ -336,3 +347,119 @@ When multiple markers follow one character, write them in canonical order: breat
 Transliteration is applied before any other parsing, including parsing of inline elements. This means that you cannot use inline element syntax (`*`, `_`, etc.) inside a transliteration block, because it will be treated as literal characters and not parsed as inline elements.
 
 You can escape special characters inside transliteration blocks with `\` as usual, but note that the set of special characters is different. For example, `*` and `_` are not special characters; `^` is a special character; `"` is also a special character, but has a different meaning (diaeresis instead of quotation).
+
+## 5. Element Index
+
+Every marker in the language on one page.
+
+### 5.1. Markers
+
+**Structure** — each of these must begin a line.
+
+| Marker             | Meaning                                   | §    |
+| ------------------ | ----------------------------------------- | ---- |
+| `# id`             | Text (root); `##`, `###`, … for sub-texts | §1.1 |
+| `[metadata]`       | Text metadata block (TOML-style pairs)    | §1.2 |
+| `[metadata.<key>]` | Nested metadata table (one level deep)    | §1.2 |
+| `{#id}`            | Content block                             | §1.3 |
+| `{#id, k=v}`       | Content block with block metadata         | §1.3 |
+
+**Block-level** — each of these must begin a line, within a content block.
+
+| Marker    | Element          | Notes                                             | §    |
+| --------- | ---------------- | ------------------------------------------------- | ---- |
+| `^1`–`^6` | `heading`        | `title`/`subtitle` blocks only; 1 is largest      | §2.1 |
+| `:`       | `stageDirection` | Nestable; a bare `:` separates paragraphs         | §2.2 |
+| `>`       | `blockquote`     | Nestable; `>>` for a quotation within a quotation | §2.3 |
+| `-`       | `list`           | Unordered item; 2-space indent nests              | §2.4 |
+| `1.`      | `list`           | Ordered item; any start number, then +1 each      | §2.4 |
+| `*`       | `list` (verse)   | Verse line; a blank line starts a new stanza      | §2.5 |
+| `\|`      | `table`          | Pipe-separated cells; `\|---\|` marks a header    | §2.6 |
+| (none)    | `paragraph`      | Any other line; consecutive lines join            | §2.7 |
+
+**Inline** — anywhere within block content.
+
+| Marker              | Element             | Notes                                     | §    |
+| ------------------- | ------------------- | ----------------------------------------- | ---- |
+| `"text"`            | `quote`             | Renders with its quotation marks          | §3.1 |
+| `*text*`            | `strong`            | Small-caps                                | §3.1 |
+| `_text_`            | `emphasis`          | Italics                                   | §3.1 |
+| `^text^`            | `superscript`       |                                           | §3.1 |
+| `,,text,,`          | `subscript`         |                                           | §3.1 |
+| `@text@`            | `speaker`           | Speaker name in dialogue                  | §3.1 |
+| `::text::`          | `stageDirection`    | Stage direction within a line             | §3.1 |
+| `#text#`            | `aside`             | Margin comment; not rendered as text      | §3.1 |
+| `[text]`            | `citation`          | Cited work; renders with its brackets     | §3.1 |
+| `[p:text]`          | `person`            |                                           | §3.1 |
+| `[l:text]`          | `place`             |                                           | §3.1 |
+| `[o:text]`          | `org`               |                                           | §3.1 |
+| `$text$`            | `language`          | Foreign text, language unspecified        | §3.1 |
+| `$xx:text$`         | `language`          | `lang` = ISO 639 code (`la`, `fr`, `grc`) | §3.1 |
+| `[+text+]`          | `insertion`         | Editorial insertion                       | §3.1 |
+| `[-text-]`          | `deletion`          | Editorial deletion                        | §3.1 |
+| `[?text?]`          | `uncertain`         | Uncertain reading                         | §3.1 |
+| `[...]`             | `illegible`         | Wholly illegible; no content              | §3.1 |
+| `[w:surface=word]`  | `word`              | Disambiguated form; surface is one token  | §3.5 |
+| `<nID>`             | `footnoteReference` | Must match an `{#nID}` block in the text  | §1.3 |
+| `~`                 | `nbSpace`           | Non-breaking space; joins a multi-word unit | §3.2 |
+| `~~`                | `tab`               | Em space / tab                            | §3.2 |
+| `\` + space or EOL  | `lineBreak`         | Hard line break                           | §3.3 |
+| `///`               | `pageBreak`         | No page reference                         | §3.1 |
+| `//ref//`           | `pageBreak`         | `ref` is any non-whitespace string        | §3.1 |
+| `<<tag…>>…<</tag>>` | `element`           | Generic escape hatch; also `<<tag/>>`     | §3.4 |
+| `\x`                | (literal `x`)       | Escape any other special character        | §3.3 |
+
+**Transliteration** — input methods; the output holds the resulting characters, not the markers.
+
+| Marker    | Meaning                                                | §    |
+| --------- | ------------------------------------------------------ | ---- |
+| `{...}`   | Character mode: digraphs, diacritics, special symbols  | §4.1 |
+| `{{...}}` | Greek mode: Latin-to-Greek on top of Greek diacritics  | §4.2 |
+
+### 5.2. Precedence
+
+Where two constructs could match at the same position, the parser tries them in this order:
+
+1. Escape (`\`)
+2. Greek mode (`{{…}}`), then character mode (`{…}`)
+3. Leaf elements, longest first: `~~` before `~`, then `[...]`
+4. Page break (`///`, then `//ref//`)
+5. Generic element (`<<`) — before footnote references, which use a single `<`
+6. Footnote reference (`<nID>`)
+7. Language (`$…$`)
+8. Word disambiguation (`[w:…=…]`)
+9. Wrapper elements, longest first — so `::` beats `:`, `,,` beats `,`, and `[p:`/`[l:`/`[o:`/`[+`/`[-`/`[?` all beat the bare `[` of a citation
+10. Plain text — a special character that began no valid construct is literal
+
+Transliteration modes (2) run before everything below them, so inline markup inside `{…}` or `{{…}}` is literal text (§4.3).
+
+### 5.3. Diagnostics
+
+Every diagnostic is recoverable: the compiler emits a message and continues, so a document with errors still compiles to a usable tree.
+
+| Message                                                                | Cause                                                     |
+| ---------------------------------------------------------------------- | --------------------------------------------------------- |
+| Document must begin with a level 1 header                              | The first line is not `# id`                              |
+| Expected level 1 header but found level _n_                            | The document opens at `##` or deeper                      |
+| Level _n_ header cannot follow level _m_ header without an intermediate | A depth was skipped (`#` then `###`)                      |
+| Block is missing metadata tag `{#id}`                                  | Content appears before any block tag                      |
+| Block tag is not properly closed with `}`                              | Malformed `{#…`                                           |
+| Duplicate block ID: `#id`                                              | Two blocks in one text share an ID                        |
+| Only one title block is allowed per text                               | A second `{#title}`                                       |
+| Title block must be the first block in the text                        | `{#title}` after another block                            |
+| Footnote blocks must appear after all paragraph blocks                 | A `{#n…}` block precedes a paragraph block                |
+| Footnote not found: _id_                                               | `<nID>` with no matching `{#nID}` block in the same text  |
+| Invalid metadata line, expected `key = value`                          | A malformed line in a `[metadata]` block                  |
+| Invalid metadata pair, expected `key=value`                            | A malformed pair inside a block tag                       |
+| Invalid metadata value: _value_                                        | Not a boolean, number, string, or homogeneous array       |
+| Multiline array must have at least one item                            | `key = [` … `]` with nothing between                      |
+| Headings are only allowed in title or subtitle blocks                  | `^N` in a paragraph or footnote block                     |
+| Heading must be given a level between 1 and 6                          | A bare `^` at the start of a line                         |
+| Heading level must be between 1 and 6                                  | `^0`, `^7`, …                                             |
+| List item must not be empty                                            | A list marker with no content and no sub-list             |
+| Unclosed formatting: _marker_                                          | A wrapper opened and never closed                         |
+| Empty formatting: _markers_                                            | A wrapper with no content                                 |
+| Unclosed element: `<<tag`                                              | A generic element opened and never closed                 |
+| Unclosed Greek mode / Unclosed character mode                          | `{{` or `{` opened and never closed                       |
+| Malformed word element; expected `[w:surface=word]`                    | No `=`, or no closing `]`                                 |
+| Word surface must be exactly one token                                 | `[w:two words=x]`; mark a multi-word unit with `~` first  |

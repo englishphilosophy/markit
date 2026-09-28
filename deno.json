@@ -8,7 +8,10 @@
     "include": [
       "src/",
       "README.md",
+      "GUIDE.md",
       "SPECIFICATION.md",
+      "API.md",
+      "ARCHITECTURE.md",
       "LICENSE.md",
       "deno.json"
     ]
